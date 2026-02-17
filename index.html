@@ -3,35 +3,479 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity Web Player | Grumply's Bedtime Adventure</title>
+    <title>Grumply's Bedtime Adventure</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Text:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --deep-night: #080c14;
+        --midnight: #0d1520;
+        --forest-dark: #0a1a0f;
+        --snow-white: #e8eef5;
+        --snow-blue: #b8cce0;
+        --ice-glow: #7aafd4;
+        --mushroom-red: #c0392b;
+        --star-gold: #f0d080;
+        --frost: rgba(184, 204, 224, 0.08);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: var(--deep-night);
+        font-family: 'Crimson Text', serif;
+        color: var(--snow-white);
+        min-height: 100vh;
+        overflow-x: hidden;
+        cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Ccircle cx='10' cy='10' r='4' fill='%23b8cce0' opacity='0.8'/%3E%3C/svg%3E"), auto;
+      }
+
+      /* Starfield background */
+      .stars {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .star {
+        position: absolute;
+        background: white;
+        border-radius: 50%;
+        animation: twinkle var(--duration) ease-in-out infinite;
+        opacity: 0;
+      }
+
+      @keyframes twinkle {
+        0%, 100% { opacity: 0; transform: scale(0.5); }
+        50% { opacity: var(--max-opacity); transform: scale(1); }
+      }
+
+      /* Snow particles */
+      .snowflakes {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        pointer-events: none;
+        z-index: 1;
+        overflow: hidden;
+      }
+
+      .snowflake {
+        position: absolute;
+        top: -10px;
+        color: var(--snow-blue);
+        font-size: var(--size);
+        opacity: 0.6;
+        animation: snowfall var(--fall-duration) linear infinite;
+        animation-delay: var(--delay);
+      }
+
+      @keyframes snowfall {
+        0% { transform: translateY(-10px) translateX(0) rotate(0deg); opacity: 0.6; }
+        100% { transform: translateY(110vh) translateX(var(--drift)) rotate(360deg); opacity: 0; }
+      }
+
+      /* Main layout */
+      .page-wrapper {
+        position: relative;
+        z-index: 2;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 30px 20px;
+      }
+
+      /* Header */
+      header {
+        text-align: center;
+        margin-bottom: 28px;
+        animation: fadeDown 1.2s ease forwards;
+      }
+
+      @keyframes fadeDown {
+        from { opacity: 0; transform: translateY(-30px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .title-eyebrow {
+        font-family: 'Crimson Text', serif;
+        font-style: italic;
+        font-size: 0.95rem;
+        color: var(--snow-blue);
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        opacity: 0.7;
+      }
+
+      h1 {
+        font-family: 'Cinzel', serif;
+        font-size: clamp(1.8rem, 4vw, 3rem);
+        font-weight: 700;
+        color: var(--snow-white);
+        text-shadow:
+          0 0 30px rgba(122, 175, 212, 0.5),
+          0 0 60px rgba(122, 175, 212, 0.2);
+        letter-spacing: 0.05em;
+        line-height: 1.2;
+      }
+
+      h1 span {
+        color: var(--ice-glow);
+      }
+
+      .title-deco {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 10px;
+        opacity: 0.5;
+      }
+
+      .title-deco-line {
+        width: 60px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--snow-blue));
+      }
+
+      .title-deco-line:last-child {
+        background: linear-gradient(90deg, var(--snow-blue), transparent);
+      }
+
+      .title-deco-symbol {
+        color: var(--star-gold);
+        font-size: 0.7rem;
+        letter-spacing: 0.2em;
+      }
+
+      /* Game container */
+      .game-frame {
+        position: relative;
+        animation: fadeIn 1.5s ease 0.3s forwards;
+        opacity: 0;
+      }
+
+      @keyframes fadeIn {
+        to { opacity: 1; }
+      }
+
+      /* Decorative corner borders */
+      .game-frame::before,
+      .game-frame::after {
+        content: '';
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        z-index: 10;
+        pointer-events: none;
+      }
+
+      .game-frame::before {
+        top: -3px; left: -3px;
+        border-top: 2px solid var(--ice-glow);
+        border-left: 2px solid var(--ice-glow);
+        box-shadow: -4px -4px 12px rgba(122, 175, 212, 0.3);
+      }
+
+      .game-frame::after {
+        bottom: -3px; right: -3px;
+        border-bottom: 2px solid var(--ice-glow);
+        border-right: 2px solid var(--ice-glow);
+        box-shadow: 4px 4px 12px rgba(122, 175, 212, 0.3);
+      }
+
+      .corner-tr, .corner-bl {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        z-index: 10;
+        pointer-events: none;
+      }
+
+      .corner-tr {
+        top: -3px; right: -3px;
+        border-top: 2px solid var(--ice-glow);
+        border-right: 2px solid var(--ice-glow);
+        box-shadow: 4px -4px 12px rgba(122, 175, 212, 0.3);
+      }
+
+      .corner-bl {
+        bottom: -3px; left: -3px;
+        border-bottom: 2px solid var(--ice-glow);
+        border-left: 2px solid var(--ice-glow);
+        box-shadow: -4px 4px 12px rgba(122, 175, 212, 0.3);
+      }
+
+      /* Glow effect around canvas */
+      .game-glow {
+        position: absolute;
+        inset: -20px;
+        background: radial-gradient(ellipse at center,
+          rgba(122, 175, 212, 0.06) 0%,
+          transparent 70%);
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      /* Unity container override */
+      #unity-container {
+        position: relative;
+      }
+
+      #unity-canvas {
+        display: block;
+        border: 1px solid rgba(122, 175, 212, 0.2);
+        box-shadow:
+          0 0 40px rgba(0, 0, 0, 0.8),
+          inset 0 0 20px rgba(0, 0, 0, 0.3);
+      }
+
+      #unity-loading-bar {
+        display: none;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        z-index: 20;
+      }
+
+      #unity-logo {
+        width: 154px;
+        height: 130px;
+        background: url('TemplateData/unity-logo-dark.png') no-repeat center;
+        background-size: contain;
+        margin: 0 auto 20px;
+        opacity: 0.6;
+      }
+
+      #unity-progress-bar-empty {
+        width: 200px;
+        height: 4px;
+        background: rgba(184, 204, 224, 0.15);
+        border-radius: 2px;
+        overflow: hidden;
+        border: 1px solid rgba(122, 175, 212, 0.2);
+      }
+
+      #unity-progress-bar-full {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(90deg, var(--snow-blue), var(--ice-glow));
+        border-radius: 2px;
+        transition: width 0.3s ease;
+        box-shadow: 0 0 8px rgba(122, 175, 212, 0.6);
+      }
+
+      #unity-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        background: rgba(8, 12, 20, 0.9);
+        border: 1px solid rgba(122, 175, 212, 0.1);
+        border-top: none;
+      }
+
+      #unity-logo-title-footer {
+        width: 80px;
+        height: 24px;
+        background: url('TemplateData/unity-logo-dark.png') no-repeat left center;
+        background-size: contain;
+        opacity: 0.4;
+      }
+
+      #unity-build-title {
+        font-family: 'Cinzel', serif;
+        font-size: 0.7rem;
+        color: var(--snow-blue);
+        letter-spacing: 0.15em;
+        opacity: 0.6;
+        text-transform: uppercase;
+      }
+
+      #unity-fullscreen-button {
+        width: 24px;
+        height: 24px;
+        background: url('TemplateData/fullscreen-button.png') no-repeat center;
+        background-size: contain;
+        cursor: pointer;
+        opacity: 0.5;
+        transition: opacity 0.2s;
+      }
+
+      #unity-fullscreen-button:hover {
+        opacity: 1;
+      }
+
+      #unity-warning {
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        z-index: 30;
+      }
+
+      /* Footer info */
+      footer {
+        margin-top: 28px;
+        text-align: center;
+        animation: fadeIn 2s ease 0.8s forwards;
+        opacity: 0;
+      }
+
+      .controls-hint {
+        display: flex;
+        gap: 24px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+
+      .control-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.8rem;
+        color: var(--snow-blue);
+        opacity: 0.6;
+        letter-spacing: 0.05em;
+      }
+
+      .key {
+        display: inline-block;
+        padding: 2px 8px;
+        border: 1px solid rgba(122, 175, 212, 0.3);
+        border-radius: 3px;
+        font-family: 'Cinzel', serif;
+        font-size: 0.65rem;
+        color: var(--ice-glow);
+        background: rgba(122, 175, 212, 0.05);
+      }
+
+      .footer-credit {
+        font-style: italic;
+        font-size: 0.8rem;
+        color: var(--snow-blue);
+        opacity: 0.3;
+        letter-spacing: 0.1em;
+      }
+
+      /* Responsive */
+      @media (max-width: 1000px) {
+        #unity-canvas {
+          width: 100% !important;
+          height: auto !important;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
-      <div id="unity-loading-bar">
-        <div id="unity-logo"></div>
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
+
+    <!-- Stars -->
+    <div class="stars" id="stars"></div>
+
+    <!-- Snow -->
+    <div class="snowflakes" id="snowflakes"></div>
+
+    <div class="page-wrapper">
+
+      <header>
+        <p class="title-eyebrow">A cozy adventure awaits</p>
+        <h1>Grumply's <span>Bedtime</span> Adventure</h1>
+        <div class="title-deco">
+          <div class="title-deco-line"></div>
+          <span class="title-deco-symbol">✦ ❄ ✦</span>
+          <div class="title-deco-line"></div>
+        </div>
+      </header>
+
+      <div class="game-frame">
+        <div class="game-glow"></div>
+        <div class="corner-tr"></div>
+        <div class="corner-bl"></div>
+
+        <div id="unity-container" class="unity-desktop">
+          <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
+          <div id="unity-loading-bar">
+            <div id="unity-logo"></div>
+            <div id="unity-progress-bar-empty">
+              <div id="unity-progress-bar-full"></div>
+            </div>
+          </div>
+          <div id="unity-warning"></div>
+          <div id="unity-footer">
+            <div id="unity-logo-title-footer"></div>
+            <div id="unity-fullscreen-button"></div>
+            <div id="unity-build-title">Grumply's Bedtime Adventure</div>
+          </div>
         </div>
       </div>
-      <div id="unity-warning"> </div>
-      <div id="unity-footer">
-        <div id="unity-logo-title-footer"></div>
-        <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">Grumply's Bedtime Adventure</div>
-      </div>
+
+      <footer>
+        <div class="controls-hint">
+          <div class="control-item">
+            <span class="key">ZQSD</span> ou <span class="key">←→↑↓</span> Se déplacer
+          </div>
+          <div class="control-item">
+            <span class="key">Espace</span> Sauter
+          </div>
+          <div class="control-item">
+            <span class="key">F</span> Plein écran
+          </div>
+        </div>
+        <p class="footer-credit">Made with ♥ at Paris 8 — ATI</p>
+      </footer>
+
     </div>
+
     <script>
+      // Generate stars
+      const starsContainer = document.getElementById('stars');
+      for (let i = 0; i < 120; i++) {
+        const star = document.createElement('div');
+        star.classList.add('star');
+        const size = Math.random() * 2.5 + 0.5;
+        star.style.cssText = `
+          width: ${size}px;
+          height: ${size}px;
+          top: ${Math.random() * 100}%;
+          left: ${Math.random() * 100}%;
+          --duration: ${Math.random() * 4 + 2}s;
+          --max-opacity: ${Math.random() * 0.7 + 0.3};
+          animation-delay: ${Math.random() * 5}s;
+        `;
+        starsContainer.appendChild(star);
+      }
+
+      // Generate snowflakes
+      const snowContainer = document.getElementById('snowflakes');
+      const snowChars = ['❄', '❅', '❆', '·', '•'];
+      for (let i = 0; i < 25; i++) {
+        const flake = document.createElement('div');
+        flake.classList.add('snowflake');
+        flake.textContent = snowChars[Math.floor(Math.random() * snowChars.length)];
+        const size = Math.random() * 14 + 8;
+        flake.style.cssText = `
+          left: ${Math.random() * 100}%;
+          --size: ${size}px;
+          --fall-duration: ${Math.random() * 10 + 8}s;
+          --delay: ${Math.random() * 10}s;
+          --drift: ${(Math.random() - 0.5) * 100}px;
+        `;
+        snowContainer.appendChild(flake);
+      }
+
+      // Unity setup
       var canvas = document.querySelector("#unity-canvas");
 
-      // Shows a temporary message banner/ribbon for a few seconds, or
-      // a permanent error message on top of the canvas if type=='error'.
-      // If type=='warning', a yellow highlight color is used.
-      // Modify or remove this function to customize the visually presented
-      // way that non-critical warnings and error messages are presented to the
-      // user.
       function unityShowBanner(msg, type) {
         var warningBanner = document.querySelector("#unity-warning");
         function updateBannerVisibility() {
@@ -40,9 +484,9 @@
         var div = document.createElement('div');
         div.innerHTML = msg;
         warningBanner.appendChild(div);
-        if (type == 'error') div.style = 'background: red; padding: 10px;';
+        if (type == 'error') div.style = 'background: rgba(192,57,43,0.8); padding: 10px; color: white;';
         else {
-          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          if (type == 'warning') div.style = 'background: rgba(240,208,128,0.8); padding: 10px; color: #080c14;';
           setTimeout(function() {
             warningBanner.removeChild(div);
             updateBannerVisibility();
@@ -63,47 +507,16 @@
         productName: "Grumply's Bedtime Adventure",
         productVersion: "0.1.0",
         showBanner: unityShowBanner,
-        // errorHandler: function(err, url, line) {
-        //    alert("error " + err + " occurred at line " + line);
-        //    // Return 'true' if you handled this error and don't want Unity
-        //    // to process it further, 'false' otherwise.
-        //    return true;
-        // },
       };
 
-      // By default, Unity keeps WebGL canvas render target size matched with
-      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
-      // Set this to false if you want to decouple this synchronization from
-      // happening inside the engine, and you would instead like to size up
-      // the canvas DOM size and WebGL render target sizes yourself.
-      // config.matchWebGLToCanvasSize = false;
-
-      // If you would like all file writes inside Unity Application.persistentDataPath
-      // directory to automatically persist so that the contents are remembered when
-      // the user revisits the site the next time, uncomment the following line:
-      // config.autoSyncPersistentDataPath = true;
-      // This autosyncing is currently not the default behavior to avoid regressing
-      // existing user projects that might rely on the earlier manual
-      // JS_FileSystem_Sync() behavior, but in future Unity version, this will be
-      // expected to change.
-
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
-
         var meta = document.createElement('meta');
         meta.name = 'viewport';
         meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
         document.getElementsByTagName('head')[0].appendChild(meta);
         document.querySelector("#unity-container").className = "unity-mobile";
         canvas.className = "unity-mobile";
-
-        // To lower canvas resolution on mobile devices to gain some
-        // performance, uncomment the following line:
-        // config.devicePixelRatio = 1;
-
-
       } else {
-        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
         canvas.style.width = "960px";
         canvas.style.height = "600px";
       }
@@ -116,19 +529,17 @@
       script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
           document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
-              }).then((unityInstance) => {
-                document.querySelector("#unity-loading-bar").style.display = "none";
-                document.querySelector("#unity-fullscreen-button").onclick = () => {
-                  unityInstance.SetFullscreen(1);
-                };
-
-              }).catch((message) => {
-                alert(message);
-              });
-            };
+        }).then((unityInstance) => {
+          document.querySelector("#unity-loading-bar").style.display = "none";
+          document.querySelector("#unity-fullscreen-button").onclick = () => {
+            unityInstance.SetFullscreen(1);
+          };
+        }).catch((message) => {
+          alert(message);
+        });
+      };
 
       document.body.appendChild(script);
-
     </script>
   </body>
 </html>
