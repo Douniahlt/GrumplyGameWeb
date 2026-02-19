@@ -125,7 +125,7 @@
       }
       .title-deco-symbol { color: var(--star-gold); font-size: 0.65rem; letter-spacing: 0.2em; }
 
-      /* Game frame — responsive with fixed 960x600 aspect ratio */
+      /* Game frame */
       .game-frame {
         position: relative;
         width: 100%;
@@ -135,7 +135,7 @@
       }
       @keyframes fadeIn { to { opacity: 1; } }
 
-      /* Corners décoratifs */
+      /* Corners */
       .game-frame::before, .game-frame::after,
       .corner-tr, .corner-bl {
         position: absolute;
@@ -156,7 +156,7 @@
         z-index: -1;
       }
 
-      /* Boîte ratio 960:600 = 62.5% */
+      /* Ratio box 960:600 = 62.5% */
       #unity-container {
         position: relative;
         width: 100%;
@@ -295,7 +295,7 @@
         <h1>Grumply's <span>Bedtime</span> Adventure</h1>
         <div class="title-deco">
           <div class="title-deco-line"></div>
-          <span class="title-deco-symbol">❄</span>
+          <span class="title-deco-symbol">✦ ❄ ✦</span>
           <div class="title-deco-line"></div>
         </div>
       </header>
@@ -389,12 +389,12 @@
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/GrumplyWeb.loader.js";
+      var loaderUrl = buildUrl + "/GrumplyWeb2.loader.js";
       var config = {
         arguments: [],
-        dataUrl:      buildUrl + "/GrumplyWeb.data",
-        frameworkUrl: buildUrl + "/GrumplyWeb.framework.js",
-        codeUrl:      buildUrl + "/GrumplyWeb.wasm",
+        dataUrl:      buildUrl + "/GrumplyWeb2.data",
+        frameworkUrl: buildUrl + "/GrumplyWeb2.framework.js",
+        codeUrl:      buildUrl + "/GrumplyWeb2.wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "M_D",
         productName: "Grumply's Bedtime Adventure",
@@ -413,7 +413,7 @@
         canvas.className = "unity-mobile";
       }
 
-      canvas.style.background = "url('" + buildUrl + "/GrumplyWeb.jpg') center / cover";
+      canvas.style.background = "url('" + buildUrl + "/GrumplyWeb2.jpg') center / cover";
       document.querySelector("#unity-loading-bar").style.display = "block";
 
       var script = document.createElement("script");
